@@ -3,6 +3,9 @@
 #define RELAY_PIN 26
 #define LED_PIN   2
 
+unsigned long lastBlink = 0;
+bool ledState = false;
+
 void setup() {
   Serial.begin(115200);
   pinMode(RELAY_PIN, OUTPUT);
@@ -11,13 +14,14 @@ void setup() {
 }
 
 void loop() {
-  // ไฟกะพริบบอกสถานะ
-  digitalWrite(LED_PIN, HIGH);
-  delay(1000);
-  digitalWrite(LED_PIN, LOW);
-  delay(1000);
+  // ไฟกะพริบแบบ non-blocking
+  if (millis() - lastBlink >= 1000) {
+    lastBlink = millis();
+    ledState = !ledState;
+    digitalWrite(LED_PIN, ledState);
+  }
 
-  // รับคำสั่งสั่งรีเลย์
+  // รับคำสั่งได้ทันที
   if (Serial.available()) {
     String cmd = Serial.readStringUntil('\n');
     cmd.trim();
